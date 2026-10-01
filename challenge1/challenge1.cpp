@@ -64,6 +64,26 @@ int main(int argc, char** argv)
     Eigen::MatrixXd noisyImg = addNoise(originalImg);
     saveMatrixAsPng("noisy_deer.png", noisyImg);
 
+    // Task 3
+    const int N = height * width;
+
+    Eigen::VectorXd v(N);
+    Eigen::VectorXd w(N);
+
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            int idx = i * width + j;
+            v(idx) = originalImg(i, j);
+            w(idx) = noisyImg(i, j);
+        }
+    }
+
+    std::cout << "===== TASK 3 =====\n";
+    std::cout << "Numero componenti atteso: " << N << "\n";
+    std::cout << "v.size() = " << v.size() << "\n";
+    std::cout << "w.size() = " << w.size() << "\n";
+    std::cout << "Norma euclidea di v: ||v||_2 = " << v.norm() << "\n";
+
 
     return 0;
 }
