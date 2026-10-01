@@ -78,7 +78,6 @@ int main(int argc, char** argv)
         }
     }
 
-    std::cout << "===== TASK 3 =====\n";
     std::cout << "Numero componenti atteso: " << N << "\n";
     std::cout << "v.size() = " << v.size() << "\n";
     std::cout << "w.size() = " << w.size() << "\n";
