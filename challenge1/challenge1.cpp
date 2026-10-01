@@ -2,6 +2,10 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <vector>
+#include <random>
+#include <algorithm>
+#include <cmath>
+#include <string>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "include/stb_image.h"
@@ -10,7 +14,8 @@
 #include "include/stb_image_write.h"
 
 Eigen::SparseMatrix<double> buildConvMatrix(int rows, int cols, const Eigen::MatrixXd& H);
-
+Eigen::MatrixXd addNoise(const Eigen::MatrixXd& img);
+void saveMatrixAsPng(const std::string& filename, const Eigen::MatrixXd& M);
 
 int main(int argc, char** argv)
 {   
@@ -47,17 +52,50 @@ int main(int argc, char** argv)
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             int idx = i * width + j;
-            originalImg(i, j) = static_cast<double>(image_data[idx]) / 255.0;
+            // originalImg(i, j) = static_cast<double>(image_data[idx]) / 255.0;
+            originalImg(i, j) = static_cast<double>(image_data[idx]); // non dovrebbero essere tra 0 e 255, dividendo per 255 rimarrebbero tra 0 e 1
         }
     }
 
     std::cout << "righe: " << height << "\ncolonne: " << width << "\n";
 
 
+    // Task 2
+    Eigen::MatrixXd noisyImg = addNoise(originalImg);
+    saveMatrixAsPng("noisy_deer.png", noisyImg);
 
 
     return 0;
 }
+
+
+Eigen::MatrixXd addNoise(const Eigen::MatrixXd& img)
+{
+    Eigen::MatrixXd noise = 50.0 * Eigen::MatrixXd::Random(img.rows(), img.cols());
+    return img + noise;
+}
+
+
+void saveMatrixAsPng(const std::string& filename, const Eigen::MatrixXd& M)
+{
+    const int rows = static_cast<int>(M.rows());
+    const int cols = static_cast<int>(M.cols());
+
+    std::vector<unsigned char> buffer(rows * cols);
+
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            const int idx = i * cols + j;
+
+            // Clamp tra 0 e 255 per evitare overflow nella conversione a unsigned char
+            double val = std::max(0.0, std::min(255.0, M(i, j)));
+            buffer[idx] = static_cast<unsigned char>(val);
+        }
+    }
+
+    stbi_write_png(filename.c_str(), cols, rows, 1, buffer.data(), cols);
+}
+
 
 Eigen::SparseMatrix<double> buildConvMatrix(
     int rows, int cols, const Eigen::MatrixXd& H){
