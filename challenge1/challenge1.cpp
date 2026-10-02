@@ -107,6 +107,33 @@ int main(int argc, char** argv)
     saveMatrixAsPng("smoothed_noisy_deer.png", smoothedImg);
 
 
+    // Task 6
+    Eigen::SparseMatrix<double> A2 = buildConvMatrix(height, width, H_sh1);
+
+    std::cout << "Dimensione di A2: " << A2.rows() << " x " << A2.cols() << "\n";
+    std::cout << "Numero di entry non nulle in A2: " << A2.nonZeros() << "\n";
+
+    // Verifica simmetria: confronta A2 con la sua trasposta
+    Eigen::SparseMatrix<double> A2_diff = A2 - Eigen::SparseMatrix<double>(A2.transpose());
+    bool isSymmetric = (A2_diff.nonZeros() == 0);
+    std::cout << "A2 è simmetrica? " << (isSymmetric ? "Sì" : "No") << "\n";
+
+
+    // Task 7
+    Eigen::VectorXd sharpened = A2 * v;
+
+    Eigen::MatrixXd sharpenedImg(height, width);
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            int idx = i * width + j;
+            sharpenedImg(i, j) = sharpened(idx);
+        }
+    }
+
+    // Salva l'immagine filtrata
+    saveMatrixAsPng("sharpened_noisy_deer.png", sharpenedImg);
+
+
     return 0;
 }
 
