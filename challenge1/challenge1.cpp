@@ -160,8 +160,7 @@ void saveMatrixAsPng(const std::string& filename, const Eigen::MatrixXd& M)
 }
 
 
-Eigen::SparseMatrix<double> buildConvMatrix(
-    int rows, int cols, const Eigen::MatrixXd& H){
+Eigen::SparseMatrix<double> buildConvMatrix(int rows, int cols, const Eigen::MatrixXd& H){
     const int kh = H.rows();     // kernel height
     const int kw = H.cols();     // kernel width 
     const int ci = kh / 2;       // center offset, rows  -> (n-1)/2
@@ -195,7 +194,8 @@ Eigen::SparseMatrix<double> buildConvMatrix(
 
                     const int col = ii * cols + jj;
 
-                    triplet.emplace_back(row, col, H(k, l));
+                    if (H(k, l) != 0.0)
+                        triplet.emplace_back(row, col, H(k, l));
                 }
             }
         }
