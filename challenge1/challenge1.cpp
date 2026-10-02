@@ -130,8 +130,7 @@ int main(int argc, char** argv)
         }
     }
 
-    // Salva l'immagine filtrata
-    saveMatrixAsPng("sharpened_noisy_deer.png", sharpenedImg);
+    saveMatrixAsPng("sharpened_deer.png", sharpenedImg);
 
 
     return 0;
