@@ -57,7 +57,6 @@ int main(int argc, char** argv)
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             int idx = i * width + j;
-            // originalImg(i, j) = static_cast<double>(image_data[idx]) / 255.0;
             originalImg(i, j) = static_cast<double>(image_data[idx]); // non dovrebbero essere tra 0 e 255, dividendo per 255 rimarrebbero tra 0 e 1
         }
     }
@@ -87,6 +86,13 @@ int main(int argc, char** argv)
     std::cout << "v.size() = " << v.size() << "\n";
     std::cout << "w.size() = " << w.size() << "\n";
     std::cout << "Norma euclidea di v: ||v||_2 = " << v.norm() << "\n";
+
+
+    // Task 4
+    Eigen::SparseMatrix<double> A1 = buildConvMatrix(height, width, H_av1);
+
+    std::cout << "Dimensioni di A1: " << A1.rows() << " x " << A1.cols() << "\n";
+    std::cout << "Numero di entry non nulle in A1: " << A1.nonZeros() << "\n";
 
 
     return 0;
