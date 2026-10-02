@@ -19,6 +19,12 @@ void saveMatrixAsPng(const std::string& filename, const Eigen::MatrixXd& M);
 
 int main(int argc, char** argv)
 {   
+    if (argc < 2) {
+        std::cerr << "Usage: " << argv[0] << " <image_path>" << std::endl;
+        return 1;
+    }
+    const char* input_image_path = argv[1];
+
     // conv kernels
     Eigen::MatrixXd H_av1(3, 3);
     H_av1 << 1.0, 1.0, 1.0,
@@ -40,7 +46,6 @@ int main(int argc, char** argv)
     
 
     // Task 1 
-    const char* input_image_path = "challenge1/deer.jpg";
     int width = 0, height = 0, channels = 0;
     unsigned char* image_data = stbi_load(input_image_path, &width, &height, &channels, 1);
     if (!image_data) {
@@ -100,19 +105,14 @@ void saveMatrixAsPng(const std::string& filename, const Eigen::MatrixXd& M)
     const int rows = static_cast<int>(M.rows());
     const int cols = static_cast<int>(M.cols());
 
-    std::vector<unsigned char> buffer(rows * cols);
+    Eigen::Matrix<unsigned char, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> out(rows, cols);
 
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            const int idx = i * cols + j;
+    out = M.unaryExpr([](double val) -> unsigned char {
+        double clamped = std::max(0.0, std::min(255.0, val));
+        return static_cast<unsigned char>(clamped);
+    });
 
-            // Clamp tra 0 e 255 per evitare overflow nella conversione a unsigned char
-            double val = std::max(0.0, std::min(255.0, M(i, j)));
-            buffer[idx] = static_cast<unsigned char>(val);
-        }
-    }
-
-    stbi_write_png(filename.c_str(), cols, rows, 1, buffer.data(), cols);
+    stbi_write_png(filename.c_str(), cols, rows, 1, out.data(), cols);
 }
 
 
