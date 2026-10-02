@@ -94,6 +94,18 @@ int main(int argc, char** argv)
     std::cout << "Dimensioni di A1: " << A1.rows() << " x " << A1.cols() << "\n";
     std::cout << "Numero di entry non nulle in A1: " << A1.nonZeros() << "\n";
 
+    // Task 5
+    Eigen::VectorXd smoothed = A1 * w;
+    Eigen::MatrixXd smoothedImg(height, width);
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            int idx = i * width + j;
+            smoothedImg(i, j) = smoothed(idx);
+        }
+    }
+
+    saveMatrixAsPng("smoothed_noisy_deer.png", smoothedImg);
+
 
     return 0;
 }
