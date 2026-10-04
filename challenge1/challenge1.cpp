@@ -133,6 +133,31 @@ int main(int argc, char** argv)
     saveMatrixAsPng("sharpened_deer.png", sharpenedImg);
 
 
+    // Task 10
+    Eigen::SparseMatrix<double> A3 = buildConvMatrix(height, width, H_ed2);
+
+    std::cout << "Dimensione di A3: " << A3.rows() << " x " << A3.cols() << "\n";
+    std::cout << "Numero di entry non nulle in A3: " << A3.nonZeros() << "\n";
+
+    // Verifica simmetria
+    Eigen::SparseMatrix<double> A3_diff = A3 - Eigen::SparseMatrix<double>(A3.transpose());
+    bool isSymmetricA3 = (A3_diff.nonZeros() == 0);
+    std::cout << "A3 è simmetrica? " << (isSymmetricA3 ? "Sì" : "No") << "\n";
+
+
+    // Task 11
+    Eigen::VectorXd edges = A3 * v;
+
+    Eigen::MatrixXd edgesImg(height, width);
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            int idx = i * width + j;
+            edgesImg(i, j) = edges(idx);
+        }
+    }
+
+    saveMatrixAsPng("edges_deer.png", edgesImg);
+
     return 0;
 }
 
