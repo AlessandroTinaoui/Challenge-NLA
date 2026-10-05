@@ -20,7 +20,7 @@
 Eigen::SparseMatrix<double> buildConvMatrix(int rows, int cols, const Eigen::MatrixXd& H);
 Eigen::MatrixXd addNoise(const Eigen::MatrixXd& img);
 void saveMatrixAsPng(const std::string& filename, const Eigen::MatrixXd& M);
-Eigen::VectorXd solveLinearSystemGREMS(const Eigen::SparseMatrix<double> &A, const Eigen::VectorXd &b, double tol, const double &N);
+Eigen::VectorXd solveLinearSystemGMRES(const Eigen::SparseMatrix<double> &A, const Eigen::VectorXd &b, double tol, int N);
 
 
 int main(int argc, char** argv)
@@ -119,11 +119,9 @@ int main(int argc, char** argv)
     std::cout << "Dimensione di A2: " << A2.rows() << " x " << A2.cols() << "\n";
     std::cout << "Numero di entry non nulle in A2: " << A2.nonZeros() << "\n";
 
-    // Verifica simmetria: confronta A2 con la sua trasposta
-    Eigen::SparseMatrix<double> A2_diff = A2 - Eigen::SparseMatrix<double>(A2.transpose());
-    bool isSymmetric = (A2_diff.nonZeros() == 0);
-    std::cout << "A2 è simmetrica? " << (isSymmetric ? "Sì" : "No") << "\n";
-
+    // Verifica simmetria
+    bool isSymmetricA2 = (A2 - Eigen::SparseMatrix<double>(A2.transpose())).norm() < 1e-12;
+    std::cout << "A2 è simmetrica? " << (isSymmetricA2 ? "Sì" : "No") << "\n";
 
     // Task 7
     Eigen::VectorXd sharpened = A2 * v;
@@ -146,8 +144,7 @@ int main(int argc, char** argv)
     std::cout << "Numero di entry non nulle in A3: " << A3.nonZeros() << "\n";
 
     // Verifica simmetria
-    Eigen::SparseMatrix<double> A3_diff = A3 - Eigen::SparseMatrix<double>(A3.transpose());
-    bool isSymmetricA3 = (A3_diff.nonZeros() == 0);
+    bool isSymmetricA3 = (A3 - Eigen::SparseMatrix<double>(A3.transpose())).norm() < 1e-12;
     std::cout << "A3 è simmetrica? " << (isSymmetricA3 ? "Sì" : "No") << "\n";
 
 
@@ -167,7 +164,19 @@ int main(int argc, char** argv)
 
     // Task 12
     auto tol = 1e-10;
-    Eigen::VectorXd y = solveLinearSystemGREMS(A3, w, tol, N);
+    Eigen::VectorXd y = solveLinearSystemGMRES(A3, w, tol, N);
+
+
+    // Task 13
+    Eigen::MatrixXd solution_y(height, width);
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            int idx = i * width + j;
+            solution_y(i, j) = y(idx);
+        }
+    }
+
+    saveMatrixAsPng("solution_y.png", solution_y);
 
     return 0;
 }
@@ -242,22 +251,21 @@ Eigen::SparseMatrix<double> buildConvMatrix(int rows, int cols, const Eigen::Mat
     return A;
 }
 
-Eigen::VectorXd solveLinearSystemGREMS(const Eigen::SparseMatrix<double> &A, const Eigen::VectorXd &b, double tol, const double &N){
+Eigen::VectorXd solveLinearSystemGMRES(const Eigen::SparseMatrix<double> &A, const Eigen::VectorXd &b, double tol, int N){
     Eigen::SparseMatrix<double> I(N, N);
     I.setIdentity();
     Eigen::SparseMatrix<double>  A4 = A + 4.0 * I;
 
     // Verifica simmetria
-    Eigen::SparseMatrix<double> A4_diff = A4 - Eigen::SparseMatrix<double>(A4.transpose());
-    bool isSymmetricA4 = (A4_diff.nonZeros() == 0);
-    std::cout << "A4 è simmetrica? " << (isSymmetricA4 ? "Sì" : "No") << "\n"; // NON è simmetrica -> metodo GMRES 
-
+    bool isSymmetricA4 = (A4 - Eigen::SparseMatrix<double>(A4.transpose())).norm() < 1e-12;
+    std::cout << "A4 è simmetrica? " << (isSymmetricA4 ? "Sì" : "No") << "\n";
+    
     Eigen::VectorXd x;
     Eigen::GMRES<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double>> GMRES;    
     GMRES.setTolerance(tol);
     GMRES.compute(A4);
     if(GMRES.info() == Eigen::Success){
-        Eigen::VectorXd x = GMRES.solve(b);
+        x = GMRES.solve(b);
         std::cout << "#iterations:     " << GMRES.iterations() << std::endl;
         std::cout << "relative residual: " << GMRES.error()      << std::endl;
     }
