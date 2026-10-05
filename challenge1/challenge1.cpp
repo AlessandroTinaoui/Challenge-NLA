@@ -20,6 +20,8 @@
 Eigen::SparseMatrix<double> buildConvMatrix(int rows, int cols, const Eigen::MatrixXd& H);
 Eigen::MatrixXd addNoise(const Eigen::MatrixXd& img);
 void saveMatrixAsPng(const std::string& filename, const Eigen::MatrixXd& M);
+Eigen::VectorXd solveLinearSystemGREMS(const Eigen::SparseMatrix<double> &A, const Eigen::VectorXd &b, double tol, const double &N);
+
 
 int main(int argc, char** argv)
 {   
@@ -165,27 +167,7 @@ int main(int argc, char** argv)
 
     // Task 12
     auto tol = 1e-10;
-    Eigen::SparseMatrix<double> I(N, N);
-    I.setIdentity();
-    Eigen::SparseMatrix<double>  A4 = A3 + 4.0 * I;
-
-    // Verifica simmetria
-    Eigen::SparseMatrix<double> A4_diff = A4 - Eigen::SparseMatrix<double>(A4.transpose());
-    bool isSymmetricA4 = (A4_diff.nonZeros() == 0);
-    std::cout << "A4 è simmetrica? " << (isSymmetricA4 ? "Sì" : "No") << "\n"; // NON è simmetrica -> metodo GMRES 
-
-    Eigen::GMRES<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double>> GMRES;    
-    GMRES.setTolerance(tol);
-    GMRES.compute(A4);
-    if(GMRES.info() == Eigen::Success){
-        Eigen::VectorXd y = GMRES.solve(w);
-        std::cout << "#iterations:     " << GMRES.iterations() << std::endl;
-        std::cout << "relative residual: " << GMRES.error()      << std::endl;
-    }
-    else{
-        std::cout << "ATTENZIONE: Il solutore ha fallito " << GMRES.info() << "\n";
-    }
-
+    Eigen::VectorXd y = solveLinearSystemGREMS(A3, w, tol, N);
 
     return 0;
 }
@@ -258,4 +240,30 @@ Eigen::SparseMatrix<double> buildConvMatrix(int rows, int cols, const Eigen::Mat
     A.setFromTriplets(triplet.begin(), triplet.end());
     
     return A;
+}
+
+Eigen::VectorXd solveLinearSystemGREMS(const Eigen::SparseMatrix<double> &A, const Eigen::VectorXd &b, double tol, const double &N){
+    Eigen::SparseMatrix<double> I(N, N);
+    I.setIdentity();
+    Eigen::SparseMatrix<double>  A4 = A + 4.0 * I;
+
+    // Verifica simmetria
+    Eigen::SparseMatrix<double> A4_diff = A4 - Eigen::SparseMatrix<double>(A4.transpose());
+    bool isSymmetricA4 = (A4_diff.nonZeros() == 0);
+    std::cout << "A4 è simmetrica? " << (isSymmetricA4 ? "Sì" : "No") << "\n"; // NON è simmetrica -> metodo GMRES 
+
+    Eigen::VectorXd x;
+    Eigen::GMRES<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double>> GMRES;    
+    GMRES.setTolerance(tol);
+    GMRES.compute(A4);
+    if(GMRES.info() == Eigen::Success){
+        Eigen::VectorXd x = GMRES.solve(b);
+        std::cout << "#iterations:     " << GMRES.iterations() << std::endl;
+        std::cout << "relative residual: " << GMRES.error()      << std::endl;
+    }
+    else{
+        std::cout << "ATTENZIONE: Il solutore ha fallito " << GMRES.info() << "\n";
+    }
+
+    return x;
 }
