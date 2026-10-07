@@ -233,7 +233,7 @@ int main(int argc, char** argv)
 Eigen::MatrixXd addNoise(const Eigen::MatrixXd& img)
 {
     Eigen::MatrixXd noise = 50.0 * Eigen::MatrixXd::Random(img.rows(), img.cols());
-    return img + noise;
+    return (img + noise).cwiseMax(0.0).cwiseMin(255.0);
 }
 
 
@@ -309,7 +309,7 @@ Eigen::VectorXd solveLinearSystemGMRES(const Eigen::SparseMatrix<double> &A, con
     std::cout << "A4 è simmetrica? " << (isSymmetricA4 ? "Sì" : "No") << "\n";
     
     Eigen::VectorXd x;
-    Eigen::GMRES<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double>> GMRES;    
+    Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double>> GMRES;    
     GMRES.setTolerance(tol);
     GMRES.compute(A4);
     if(GMRES.info() == Eigen::Success){
