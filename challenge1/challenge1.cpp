@@ -22,7 +22,7 @@
 Eigen::SparseMatrix<double> buildConvMatrix(int rows, int cols, const Eigen::MatrixXd& H);
 Eigen::MatrixXd addNoise(const Eigen::MatrixXd& img);
 void saveMatrixAsPng(const std::string& filename, const Eigen::MatrixXd& M);
-Eigen::VectorXd solveLinearSystemGMRES(const Eigen::SparseMatrix<double> &A, const Eigen::VectorXd &b, double tol, int N);
+Eigen::VectorXd solveLinearSystem(const Eigen::SparseMatrix<double> &A, const Eigen::VectorXd &b, double tol, int N);
 
 
 int main(int argc, char** argv)
@@ -212,7 +212,7 @@ int main(int argc, char** argv)
 
     // Task 12
     auto tol = 1e-10;
-    Eigen::VectorXd y = solveLinearSystemGMRES(A3, w, tol, N);
+    Eigen::VectorXd y = solveLinearSystem(A3, w, tol, N);
 
 
     // Task 13
@@ -299,7 +299,7 @@ Eigen::SparseMatrix<double> buildConvMatrix(int rows, int cols, const Eigen::Mat
     return A;
 }
 
-Eigen::VectorXd solveLinearSystemGMRES(const Eigen::SparseMatrix<double> &A, const Eigen::VectorXd &b, double tol, int N){
+Eigen::VectorXd solveLinearSystem(const Eigen::SparseMatrix<double> &A, const Eigen::VectorXd &b, double tol, int N){
     Eigen::SparseMatrix<double> I(N, N);
     I.setIdentity();
     Eigen::SparseMatrix<double>  A4 = A + 4.0 * I;
