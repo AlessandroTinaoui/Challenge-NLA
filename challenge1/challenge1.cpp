@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <cstdio>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <vector>
@@ -69,6 +71,7 @@ int main(int argc, char** argv)
 
     std::cout << "righe: " << height << "\ncolonne: " << width << "\n";
 
+    stbi_image_free(image_data);
 
     // Task 2
     Eigen::MatrixXd noisyImg = addNoise(originalImg);
@@ -135,6 +138,51 @@ int main(int argc, char** argv)
     }
 
     saveMatrixAsPng("sharpened_deer.png", sharpenedImg);
+
+    // Task 8:
+    if (!Eigen::saveMarket(A2, "A2.mtx")) {
+        std::cerr << "Errore: impossibile esportare A2.mtx\n";
+        return 1;
+    }
+    FILE* out = fopen("w.mtx", "w");
+    if (!out) {
+        std::cerr << "Errore: impossibile aprire w.mtx\n";
+        return 1;
+    }
+    fprintf(out, "%%%%MatrixMarket vector coordinate real general\n");
+    fprintf(out, "%d\n", N);
+    for (int i = 0; i < N; ++i) {
+        fprintf(out, "%d %.17g\n", i + 1, w(i));
+    }
+    const bool writeError = ferror(out) != 0;
+    const int closeResult = fclose(out);
+    if (writeError || closeResult != 0) {
+        std::cerr << "Errore: impossibile esportare w.mtx\n";
+        return 1;
+    }
+    std::cout << "esportati A2.mtx e w.mtx per LIS.\n";
+
+    // Task 9: 
+    if (argc >= 3) {
+        std::ifstream solutionFile(argv[2]);
+        if (!solutionFile) {
+            std::cerr << "Errore: impossibile aprire la soluzione LIS " << argv[2] << "\n";
+            return 1;
+        }
+        std::string line;
+        std::getline(solutionFile, line); // intestazione Matrix Market
+        std::getline(solutionFile, line); // dimensione del vettore
+        Eigen::VectorXd x(N);
+        for (int k = 0; k < N; ++k) {
+            int index;
+            solutionFile >> index >> x(k);
+        }
+        Eigen::MatrixXd solutionImg(height, width);
+        for (int i = 0; i < height; ++i)
+            for (int j = 0; j < width; ++j)
+                solutionImg(i, j) = x(i * width + j);
+        saveMatrixAsPng("solution_lis.png", solutionImg);
+    }
 
 
     // Task 10

@@ -1,2 +1,11 @@
 .DS_Store
 main1
+/lis*
+LABS*
+
+*.log
+*.hist
+hist*.txt
+*_residuals.txt
+
+*.mtx
