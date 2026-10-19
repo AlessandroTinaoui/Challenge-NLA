@@ -72,15 +72,21 @@ int main(int argc, char** argv)
     //Task 6
     Eigen::MatrixXd U = svd.matrixU();
     Eigen::MatrixXd V = svd.matrixV();
-    int k = 30;
-    Eigen::MatrixXd C = U.leftCols(k);
-    Eigen::MatrixXd D = V.leftCols(k) * W.head(k).asDiagonal();
+    int k1 = 30;
+    Eigen::MatrixXd C1 = U.leftCols(k1);
+    Eigen::MatrixXd D1 = V.leftCols(k1) * W.head(k1).asDiagonal();
  
-    std::cout << "Numero di entry non nulle in C: " << C.nonZeros() << std::endl;
-    std::cout << "Numero di entry non nulle in D: " << D.nonZeros() << std::endl;
+    std::cout << "Numero di entry non nulle in C1: " << C1.nonZeros() << std::endl;
+    std::cout << "Numero di entry non nulle in D1: " << D1.nonZeros() << std::endl;
+
+    int k2 = 90;
+    Eigen::MatrixXd C2 = U.leftCols(k2);
+    Eigen::MatrixXd D2 = V.leftCols(k2) * W.head(k2).asDiagonal();
+ 
+    std::cout << "Numero di entry non nulle in C2: " << C2.nonZeros() << std::endl;
+    std::cout << "Numero di entry non nulle in D2: " << D2.nonZeros() << std::endl;
 
     //Task 7
     
-
 
 }
