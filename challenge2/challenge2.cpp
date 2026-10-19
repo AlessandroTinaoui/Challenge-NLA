@@ -113,6 +113,35 @@ int main(int argc, char** argv)
     Eigen::MatrixXd noisyChessboard = addNoise(chessboard);
     saveMatrixAsPng("noisyChessboard.png", noisyChessboard);
 
+    //Task 10
+    Eigen::BDCSVD<Eigen::MatrixXd> svdNoisy(noisyChessboard, Eigen::ComputeThinU | Eigen::ComputeThinV);
+    Eigen::VectorXd Wn = svdNoisy.singularValues();
+    std::cout << "sigma_1 = " << Wn(0) << "\n";
+    std::cout << "sigma_2 = " << Wn(1) << std::endl;
+
+    //Task 11
+    Eigen::MatrixXd Un = svdNoisy.matrixU();
+    Eigen::MatrixXd Vn = svdNoisy.matrixV();
+    int kn1 = 6;
+    Eigen::MatrixXd Cn1 = Un.leftCols(kn1);
+    Eigen::MatrixXd Dn1 = Vn.leftCols(kn1) * Wn.head(kn1).asDiagonal();
+
+    std::cout << "Size of Cn1: " << Cn1.rows() << " x " << Cn1.cols() << std::endl;
+    std::cout << "Size of Dn1: " << Dn1.rows() << " x " << Dn1.cols() << std::endl;
+
+    int kn2 = 12;
+    Eigen::MatrixXd Cn2 = Un.leftCols(kn2);
+    Eigen::MatrixXd Dn2 = Vn.leftCols(kn2) * Wn.head(kn2).asDiagonal();
+
+    std::cout << "Size of Cn2: " << Cn2.rows() << " x " << Cn2.cols() << std::endl;
+    std::cout << "Size of Dn2: " << Dn2.rows() << " x " << Dn2.cols() << std::endl;
+
+    //Task 12
+    Eigen::MatrixXd noisyChessboard_compressed1, noisyChessboard_compressed2;
+    noisyChessboard_compressed1 = Cn1 * Dn1.transpose();
+    saveMatrixAsPng("noisyChessboard_compressed1.png", noisyChessboard_compressed1);
+    noisyChessboard_compressed2 = Cn2 * Dn2.transpose();
+    saveMatrixAsPng("noisyChessboard_compressed2.png", noisyChessboard_compressed2);
 
     return 0;
 }
