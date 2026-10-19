@@ -58,4 +58,10 @@ int main(int argc, char** argv)
     std::cout << "sigma_1 = " << std::sqrt(lambda(n - 1)) << "\n";
     std::cout << "sigma_2 = " << std::sqrt(lambda(n - 2)) << std::endl;
 
+    //Task 3
+    if (!Eigen::saveMarket(AtA, "AtA.mtx")) {
+        std::cerr << "Errore: impossibile esportare AtA.mtx\n";
+        return 1;
+    }
+
 }
