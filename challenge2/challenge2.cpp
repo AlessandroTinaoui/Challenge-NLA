@@ -18,6 +18,7 @@
 #include "include/stb_image_write.h"
 
 void saveMatrixAsPng(const std::string& filename, const Eigen::MatrixXd& M);
+Eigen::MatrixXd addNoise(const Eigen::MatrixXd& img);
 
 
 int main(int argc, char** argv)
@@ -96,7 +97,24 @@ int main(int argc, char** argv)
     A_compressed2 = C2 * D2.transpose();
     saveMatrixAsPng("A_compressed2.png", A_compressed2);
 
+    // Task 8
+    int dim = 400;
+    Eigen::MatrixXd chessboard(dim,dim);
+    for (int i = 0; i < dim; ++i) {
+        for (int j = 0; j < dim; ++j) {
+            chessboard(i, j) = ((i/40 + j/40)%2 == 0) ? 0.0 : 255.0; 
+        }
+    }
 
+    saveMatrixAsPng("chessboard.png", chessboard);
+    std::cout << "euclidean norm: " << chessboard.norm() << std::endl;
+
+    //Task 9
+    Eigen::MatrixXd noisyChessboard = addNoise(chessboard);
+    saveMatrixAsPng("noisyChessboard.png", noisyChessboard);
+
+
+    return 0;
 }
 
 void saveMatrixAsPng(const std::string& filename, const Eigen::MatrixXd& M)
@@ -112,4 +130,10 @@ void saveMatrixAsPng(const std::string& filename, const Eigen::MatrixXd& M)
     });
 
     stbi_write_png(filename.c_str(), cols, rows, 1, out.data(), cols);
+}
+
+Eigen::MatrixXd addNoise(const Eigen::MatrixXd& img)
+{
+    Eigen::MatrixXd noise = 60.0 * Eigen::MatrixXd::Random(img.rows(), img.cols());
+    return (img + noise).cwiseMax(0.0).cwiseMin(255.0);
 }
