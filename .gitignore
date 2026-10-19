@@ -1,6 +1,7 @@
 .DS_Store
 main1
-/lis*
+main2
+lis*
 LABS*
 
 *.log
