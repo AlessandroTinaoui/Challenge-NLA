@@ -17,6 +17,9 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "include/stb_image_write.h"
 
+void saveMatrixAsPng(const std::string& filename, const Eigen::MatrixXd& M);
+
+
 int main(int argc, char** argv)
 {   
     if (argc < 2) {
@@ -87,6 +90,26 @@ int main(int argc, char** argv)
     std::cout << "Numero di entry non nulle in D2: " << D2.nonZeros() << std::endl;
 
     //Task 7
-    
+    Eigen::MatrixXd A_compressed1, A_compressed2;
+    A_compressed1 = C1 * D1.transpose();
+    saveMatrixAsPng("A_compressed1.png", A_compressed1);
+    A_compressed2 = C2 * D2.transpose();
+    saveMatrixAsPng("A_compressed2.png", A_compressed2);
 
+
+}
+
+void saveMatrixAsPng(const std::string& filename, const Eigen::MatrixXd& M)
+{
+    const int rows = static_cast<int>(M.rows());
+    const int cols = static_cast<int>(M.cols());
+
+    Eigen::Matrix<unsigned char, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> out(rows, cols);
+
+    out = M.unaryExpr([](double val) -> unsigned char {
+        double clamped = std::max(0.0, std::min(255.0, val));
+        return static_cast<unsigned char>(clamped);
+    });
+
+    stbi_write_png(filename.c_str(), cols, rows, 1, out.data(), cols);
 }
