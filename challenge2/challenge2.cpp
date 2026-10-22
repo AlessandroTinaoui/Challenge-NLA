@@ -164,5 +164,5 @@ void saveMatrixAsPng(const std::string& filename, const Eigen::MatrixXd& M)
 Eigen::MatrixXd addNoise(const Eigen::MatrixXd& img)
 {
     Eigen::MatrixXd noise = 60.0 * Eigen::MatrixXd::Random(img.rows(), img.cols());
-    return (img + noise).cwiseMax(0.0).cwiseMin(255.0);
+    return img + noise;
 }
