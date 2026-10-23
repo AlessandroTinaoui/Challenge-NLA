@@ -62,11 +62,15 @@ int main(int argc, char** argv)
     std::cout << "sigma_1 = " << std::sqrt(lambda(n - 1)) << "\n";
     std::cout << "sigma_2 = " << std::sqrt(lambda(n - 2)) << std::endl;
 
-    //Task 3 e 4
+    //Task 3 
     if (!Eigen::saveMarket(AtA, "AtA.mtx")) {
         std::cerr << "Errore: impossibile esportare AtA.mtx\n";
         return 1;
     }
+    // mpirun -n 4 ./eigen1 AtA.mtx eigvec.txt hist.txt -e pi -etol 1.e-10 -emaxiter 1000
+
+    //Task 4
+    // mpirun -n 4 ./eigen1 AtA.mtx eigvec.txt hist.txt -e ii -shift 1.2e9 -etol 1.e-10 -emaxiter 1000 -i gmres -tol 1.e-12
 
     //Task 5
     Eigen::BDCSVD<Eigen::MatrixXd> svd (A, Eigen::ComputeThinU | Eigen::ComputeThinV);
